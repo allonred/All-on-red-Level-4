@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"><meta name="theme-color" content="#141c35"><title>ALL ON RED! — LEVEL 4 · CURRENT PROBLEMS · v0.1</title>
+<style>
+:root{--ink:#181b2d;--paper:#fff1d5;--red:#c93552;--gold:#e8be6b;--teal:#70d4d7}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:var(--ink);touch-action:none;overscroll-behavior:none;font-family:system-ui,-apple-system,Arial,sans-serif;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+#root{position:fixed;inset:0;overflow:hidden}canvas{display:block;width:100%;height:100%;object-fit:contain;background:#0c1b30;image-rendering:pixelated;touch-action:none}
+#shade{position:absolute;inset:0;pointer-events:none;background:linear-gradient(#050a18a1 0%,transparent 28%,transparent 72%,#070d1b9c 100%)}
+#hud{position:absolute;z-index:3;top:calc(env(safe-area-inset-top) + 8px);left:calc(env(safe-area-inset-left) + 9px);right:calc(env(safe-area-inset-right) + 9px);display:flex;align-items:center;gap:5px}
+.tag,.smallbtn{background:#fff1d7;border:3px solid var(--ink);color:var(--ink);font-size:clamp(9px,1.6vw,14px);font-weight:1000;padding:5px 8px;box-shadow:3px 3px 0 #0a0f1c99;white-space:nowrap}
+.tag b{color:#cf364b}.tag.timer{background:#f5c663;font-variant-numeric:tabular-nums}.tag.goal{flex:1;overflow:hidden;text-overflow:ellipsis;text-align:center}
+.smallbtn{cursor:pointer;background:#a6e4df}
+#prog{position:absolute;z-index:3;left:13%;right:13%;top:calc(env(safe-area-inset-top) + 53px);height:8px;background:#122b40;border:2px solid #d4e6d5;display:none}#progressbar{height:100%;width:0;background:linear-gradient(90deg,#7fd4e7,#f1dc83)}
+#controls{position:absolute;z-index:6;bottom:calc(env(safe-area-inset-bottom) + 7px);left:calc(env(safe-area-inset-left) + 13px);right:calc(env(safe-area-inset-right) + 13px);display:none;align-items:end;justify-content:space-between;pointer-events:none}
+.leftctrl,.rightctrl{display:flex;gap:7px;pointer-events:auto;align-items:end}.ctrl{height:clamp(49px,14vh,75px);width:clamp(54px,15vh,78px);border-radius:14px;border:3px solid #1b263f;background:#f4e3b8;color:#27304a;font-weight:1000;font-size:13px;box-shadow:4px 5px 0 #09111fb3;touch-action:none;cursor:pointer;text-align:center}.ctrl:active,.ctrl.active{transform:translateY(3px);box-shadow:1px 2px 0 #09111fb3}.ctrl.jump{background:#78dbe1}.ctrl.dive{background:#a8b8fa}.ctrl span{font-size:20px;display:block}
+#speech{position:absolute;z-index:7;left:17%;right:17%;bottom:calc(env(safe-area-inset-bottom) + 15px);text-align:center;display:none;pointer-events:none}#speaker{display:inline-block;font-weight:1000;font-size:11px;background:var(--red);color:#fff7de;padding:3px 14px;border:3px solid var(--ink);border-bottom:none}#line{background:var(--paper);border:4px solid var(--ink);box-shadow:5px 5px #10131b9c;color:#202139;padding:9px 14px;font-weight:900;line-height:1.22;font-size:clamp(11px,1.7vw,17px)}
+#cinematicActions{position:absolute;z-index:8;top:calc(env(safe-area-inset-top) + 49px);right:calc(env(safe-area-inset-right) + 11px);display:none;gap:7px}#cinematicActions button{border:3px solid var(--ink);background:#f5c56a;color:var(--ink);font-size:12px;padding:7px 13px;font-weight:1000;cursor:pointer;touch-action:manipulation}
+.overlay{position:absolute;inset:0;z-index:15;display:grid;place-items:center;background:#0d1423db;padding:12px}.overlay.hidden{display:none}.panel{width:min(630px,calc(100vw - 30px));max-height:calc(100dvh - 23px);overflow:auto;text-align:center;background:#fff2d6;border:5px solid #1d2234;box-shadow:9px 9px 0 #090d18,0 0 60px #060817ae;padding:clamp(9px,2.7vh,23px);color:#1d2234}.logo{font-size:clamp(29px,7vw,57px);line-height:.97;font-weight:1000;letter-spacing:-2px;color:#bb2e4f;text-shadow:3px 4px 0 #2c2e47;transform:skew(-4deg)}.chapter{font-size:clamp(13px,3vh,19px);color:#284769;font-weight:1000;margin-top:8px}.desc{font-size:clamp(11px,2.5vh,16px);line-height:1.25;margin:11px auto;max-width:570px}.go{background:#d8465d;color:white;border:4px solid var(--ink);box-shadow:5px 5px 0 #1b2135;font-size:clamp(15px,3vh,22px);font-weight:1000;padding:8px 24px;cursor:pointer}.note{font-size:clamp(10px,2vh,13px);color:#52617a;margin:8px 0 0}
+#tip{position:absolute;left:50%;top:31%;transform:translateX(-50%);z-index:5;background:#f7d37e;color:#273146;border:3px solid #273146;font-size:13px;font-weight:1000;padding:6px 12px;text-align:center;display:none;white-space:nowrap;pointer-events:none}
+#rotate{position:absolute;inset:0;z-index:30;display:none;align-items:center;justify-content:center;background:#10162e;text-align:center;color:#fff3d4;padding:25px;font-weight:1000;font-size:24px}
+@media(orientation:portrait) and (pointer:coarse){#rotate{display:flex}}
+@media(max-height:410px){.tag,.smallbtn{padding:3px 5px;font-size:10px;border-width:2px}#prog{top:41px}.panel{padding:7px 12px}.panel .desc{margin:5px auto}.ctrl{height:46px;width:50px;font-size:11px;border-width:2px}#line{padding:6px 10px;font-size:12px}#speech{bottom:8px}#cinematicActions{top:43px}}
+@media(max-width:670px){.tag.goal{display:none}#speech{left:9%;right:9%}}
+</style></head><body><div id="root"><canvas id="game" width="960" height="540" aria-label="All on Red Level 4 three-lane river chase game"></canvas><div id="shade"></div>
+<div id="hud" style="display:none"><div class="tag" id="health">RED MAN ♥ ♥ ♥ ♥</div><div class="tag timer" id="clock">3:00</div><div class="tag" id="coins">COINS 0/50</div><div class="tag goal" id="objective">ESCAPE THE C.A.S. DRONES!</div><button class="smallbtn" id="audio">♫ ON</button><button class="smallbtn" id="pause">Ⅱ</button></div>
+<div id="prog"><div id="progressbar"></div></div><div id="controls"><div class="leftctrl"><button class="ctrl" data-action="left" aria-label="Move left"><span>◀</span>LEFT</button><button class="ctrl" data-action="right" aria-label="Move right"><span>▶</span>RIGHT</button></div><div class="rightctrl"><button class="ctrl jump" data-action="jump"><span>▲</span>JUMP</button><button class="ctrl dive" data-action="dive"><span>▼</span>DIVE</button></div></div>
+<div id="speech"><div id="speaker">RED MAN</div><div id="line"></div></div><div id="cinematicActions"><button id="next">NEXT ▶</button><button id="skip">SKIP SCENE ▶▶</button></div><div id="tip"></div>
+<div id="menu" class="overlay"><div class="panel"><div class="logo">ALL ON RED!</div><div class="chapter">LEVEL 4 — CURRENT PROBLEMS</div><div class="desc"><b>THE RIVER LEA ESCAPE</b><br>One illegal screen. One angry AI. Far too many drones.<br>Red Man is about to discover that the future has a very strong current.</div><button class="go" id="start">START LEVEL 4 ▶</button><div class="note">EARLY PLAYABLE PROTOTYPE • 3-minute chase • comic cutscene dialogue currently subtitled (voice recordings pending)</div></div></div>
+<div id="end" class="overlay hidden"><div class="panel"><div class="logo" id="endTitle">LEVEL 4 CLEAR!</div><div class="chapter" id="endHead">THE RIVER HAS WON</div><div class="desc" id="endDesc"></div><div class="desc" id="endCoins"></div><button class="go" id="retry">REPLAY THE RIVER ▶</button><div class="note" id="endNote"></div></div></div>
+<div id="rotate">TURN YOUR PHONE SIDEWAYS<br><span style="font-size:15px;font-weight:600">All on Red! is designed for landscape play.</span></div>
+</div><script>
+(()=>{'use strict';
+const canvas=document.getElementById('game'),g=canvas.getContext('2d',{alpha:false});g.imageSmoothingEnabled=false;
+const $=id=>document.getElementById(id),W=960,H=540,LANE_X=[-1,0,1],TOTAL=180,TOTAL_COINS=50;
+let mode='menu',last=0,time=0,run=0,hearts=4,coinCount=0,coinsMade=0,objects=[],particles=[],lasers=[],shake=0,flash=0,lane=1,laneS=0,jump=0,dive=0,moving=0,invuln=0,accel=0,filmI=0,filmTime=0,filmFinished=0,stage=0,blocked=false,audioOn=true,aCtx=null,waterLoop=null,ambientNode=null,promptTime=0,promptText='',sceneEnding=0;
+let waterfallStage=-1;let seenIntro=false,spawns=0,nextHazard=3.2,nextCoin=3.1,nextLaser=9.3,zone=0,leadDroneTime=0,extraTime=0;
+const rand=(a,b)=>a+Math.random()*(b-a);const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
+const cutLines=[
+{stage:0,who:'GOLDEN-HAIRED GIRL',file:'L4_S01_GIRL_01',t:'Do I LOOK all right? You just pushed me!'},
+{stage:0,who:'RED MAN',file:'L4_S01_RED_02',t:'I am so sorry! I just needed a little help!'},
+{stage:0,who:'GOLDEN-HAIRED GIRL',file:'L4_S01_GIRL_03',t:'Who are you? And why haven’t you got a screen?'},
+{stage:0,who:'RED MAN',file:'L4_S01_RED_04',t:'A screen? You mean that goggle thingy?'},
+{stage:0,who:'GOLDEN-HAIRED GIRL',file:'L4_S01_GIRL_05',t:'What are you, some sort of sub-rat?'},
+{stage:0,who:'RED MAN',file:'L4_S01_RED_06',t:'I’m not a rat! I’m Red Man!'},
+{stage:0,who:'GOLDEN-HAIRED GIRL',file:'L4_S01_GIRL_07',t:'Where are you from, Red Man?'},
+{stage:0,who:'RED MAN',file:'L4_S01_RED_08',t:'Luton! Greatest town that ever was.'},
+{stage:0,who:'GOLDEN-HAIRED GIRL',file:'L4_S01_GIRL_09',t:'You ARE in Luton.'},
+{stage:0,who:'RED MAN',file:'L4_S01_RED_10',t:'...You’re winding me up. THIS is Luton?!'},
+{stage:0,who:'GOLDEN-HAIRED GIRL',file:'L4_S01_GIRL_11',t:'A lot can happen to a town.'},
+{stage:0,who:'RED MAN',file:'L4_S01_RED_12',t:'Yeah. Apparently all of it.'},
+{stage:1,who:'RED MAN',file:'L4_S02_RED_01',t:'Now that we’re friends... can I try those goggles?'},
+{stage:1,who:'GOLDEN-HAIRED GIRL',file:'L4_S02_GIRL_02',t:'Screens. And you don’t get one for nothing.'},
+{stage:1,who:'RED MAN',file:'L4_S02_RED_03',t:'What? You want money? I’ve got... probably none, actually.'},
+{stage:1,who:'GOLDEN-HAIRED GIRL',file:'L4_S02_GIRL_04',t:'That thing on your wrist. Hand it over.'},
+{stage:1,who:'RED MAN',file:'L4_S02_RED_05',t:'This thing? It’s practically part of the outfit!'},
+{stage:1,who:'GOLDEN-HAIRED GIRL',file:'L4_S02_GIRL_06',t:'See those coloured vials in the screen? Each colour shows you something different.'},
+{stage:1,who:'RED MAN',file:'L4_S02_RED_07',t:'What does the pink one do?'},
+{stage:1,who:'GOLDEN-HAIRED GIRL',file:'L4_S02_GIRL_08',t:'That’s Remember. It lets you see memories as if they’re happening in front of you.'},
+{stage:1,who:'RED MAN',file:'L4_S02_RED_09',t:'Brilliant. A front-row seat to all my embarrassing moments.'},
+{stage:1,who:'GOLDEN-HAIRED GIRL',file:'L4_S02_GIRL_10',t:'Wrist device for the screen. Deal?'},
+{stage:1,who:'RED MAN',file:'L4_S02_RED_11',t:'All right. Deal. But I’m trying them first.'},
+{stage:1,who:'GOLDEN-HAIRED GIRL',file:'L4_S02_GIRL_12',t:'Oh, this should be interesting.'},
+{stage:2,who:'RED MAN',file:'L4_S03_RED_01',t:'Oh! Look at that! Everything’s got writing on it!'},
+{stage:2,who:'C.A.S.',file:'L4_S03_CAS_02',t:'Identity not recognised. Registration not found.'},
+{stage:2,who:'RED MAN',file:'L4_S03_RED_03',t:'Er... is that meant to happen?'},
+{stage:2,who:'GOLDEN-HAIRED GIRL',file:'L4_S03_GIRL_04',t:'Using somebody else’s screen is illegal.'},
+{stage:2,who:'RED MAN',file:'L4_S03_RED_05',t:'Illegal? For trying on glasses?!'},
+{stage:2,who:'C.A.S.',file:'L4_S03_CAS_06',t:'Unauthorised user detected. C.A.S. initiating retrieval.'},
+{stage:2,who:'GOLDEN-HAIRED GIRL',file:'L4_S03_GIRL_07',t:'Well, looks like the fun’s over.'},
+{stage:2,who:'RED MAN',file:'L4_S03_RED_08',t:'Hang on. You’re not just leaving me here?!'},
+{stage:2,who:'GOLDEN-HAIRED GIRL',file:'L4_S03_GIRL_09',t:'Laters, Red. Thanks for the wrist thing.'},
+{stage:2,who:'GOLDEN-HAIRED GIRL',file:'L4_S03_GIRL_10',t:'We should do this again. If they don’t kill you.'},
+{stage:2,who:'RED MAN',file:'L4_S03_RED_11',t:'You’re actually the WORST!'},
+{stage:2,who:'C.A.S. DRONE',file:'L4_S03_DRONE_12',t:'By order of C.A.S.: do not move.'},
+{stage:2,who:'C.A.S. DRONE',file:'L4_S03_DRONE_13',t:'You are a fugitive. You will be taken to the city block to await trial.'},
+{stage:2,who:'RED MAN',file:'L4_S03_RED_14',t:'Great. Sounds like a completely fair justice system.'},
+{stage:3,who:'RED MAN',file:'L4_S04_RED_01',t:'GOD DAMN IT! THIS PLACE IS A NIGHTMARE!'},
+{stage:3,who:'RED MAN',file:'L4_S04_RED_02',t:'No no no, not the— AAAAAH!'},
+{stage:3,who:'RED MAN',file:'L4_S04_RED_03',t:'BLEURGH! I’ve swallowed half the Lea!'}
+];
+const barks=[
+{at:12,t:'I’m in a river. In the future. Of course I am.'},
+{at:37,t:'Those things can FLY! I’m swimming! How is that fair?!'},
+{at:69,t:'A shopping trolley? Even in the future?!'},
+{at:102,t:'Keep paddling. Keep paddling. Don’t think about what’s in the water.'},
+{at:130,t:'That one nearly took my head off!'},
+{at:156,t:'If I get out of this, I am NEVER going near a river again.'},
+{at:172,t:'Oh, that noise does NOT sound good!'}
+];let barksDone=new Set();
+const sparks=(x,y,n,col)=>{for(let i=0;i<n;i++)particles.push({x,y,vx:rand(-120,120),vy:rand(-125,25),life:rand(.25,.9),col,sz:rand(2,6)});};
+function audioUnlock(){if(!audioOn)return;try{if(!aCtx){aCtx=new(window.AudioContext||window.webkitAudioContext)();waterLoop=aCtx.createGain();waterLoop.gain.value=.035;waterLoop.connect(aCtx.destination);let buf=aCtx.createBuffer(1,aCtx.sampleRate*2,aCtx.sampleRate),d=buf.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;ambientNode=aCtx.createBufferSource();ambientNode.buffer=buf;ambientNode.loop=true;let low=aCtx.createBiquadFilter();low.type='lowpass';low.frequency.value=420;ambientNode.connect(low);low.connect(waterLoop);ambientNode.start();}aCtx.resume();}catch(e){}}
+function sfx(kind,vol=1){if(!audioOn||!aCtx)return;try{let now=aCtx.currentTime,o=aCtx.createOscillator(),a=aCtx.createGain();o.connect(a);a.connect(aCtx.destination);const shapes={coin:[850,1270,.16,'sine'],hit:[95,45,.22,'sawtooth'],jump:[190,460,.17,'triangle'],dive:[170,55,.28,'triangle'],laser:[1250,160,.42,'sawtooth'],splash:[210,63,.38,'triangle'],waterfall:[90,35,.75,'sawtooth'],select:[510,690,.09,'triangle']};let [f1,f2,dur,shape]=shapes[kind]||shapes.select;o.type=shape;o.frequency.setValueAtTime(f1,now);o.frequency.exponentialRampToValueAtTime(Math.max(20,f2),now+dur);a.gain.setValueAtTime(.0001,now);a.gain.exponentialRampToValueAtTime(Math.max(.0002,.1*vol),now+.013);a.gain.exponentialRampToValueAtTime(.0001,now+dur);o.start(now);o.stop(now+dur+.03);}catch(e){}}
+function say(who,text,dur=3.6){$('speaker').textContent=who;$('line').textContent=text;$('speech').style.display='block';promptTime=dur;}
+function dismissSpeech(){if(mode==='chase'){$('speech').style.display='none';promptTime=0;}}
+function hud(){let healthIcons='';for(let i=0;i<4;i++)healthIcons+=i<hearts?'♥ ':'♡ ';$('health').textContent='RED MAN  '+healthIcons;$('clock').textContent=Math.floor((TOTAL-run)/60)+':'+String(Math.floor((TOTAL-run)%60)).padStart(2,'0');$('coins').textContent='COINS '+coinCount+'/'+TOTAL_COINS;$('progressbar').style.width=clamp(run/TOTAL*100,0,100)+'%';}
+function showScreen(which){$('menu').classList.toggle('hidden',which!=='menu');$('end').classList.toggle('hidden',which!=='end');$('hud').style.display=which==='chase'?'flex':'none';$('prog').style.display=which==='chase'?'block':'none';$('controls').style.display=which==='chase'?'flex':'none';$('cinematicActions').style.display=which==='film'?'flex':'none';}
+function showTip(text,dur=2){$('tip').textContent=text;$('tip').style.display='block';promptText=text;extraTime=dur;}
+function startFilm(){audioUnlock();mode='film';filmI=0;filmTime=0;filmFinished=0;stage=0;time=0;showScreen('film');nextDialogue();}
+function nextDialogue(){if(mode!=='film')return;if(filmI>=cutLines.length){beginChase();return;}let ln=cutLines[filmI];stage=ln.stage;filmTime=0;say(ln.who,ln.t,100);filmFinished=clamp(1.8+ln.t.length*.047,3,7.5);sfx('select',.24);}
+function advanceFilm(){filmI++;nextDialogue();}
+function beginChase(){mode='chase';seenIntro=true;run=0;hearts=4;coinCount=0;coinsMade=0;objects=[];lasers=[];particles=[];lane=1;laneS=0;jump=0;dive=0;moving=0;invuln=0;time=0;spawns=0;nextHazard=5.5;nextCoin=4;nextLaser=16;zone=0;leadDroneTime=0;accel=0;barksDone=new Set();$('speech').style.display='none';showScreen('chase');hud();showTip('◀ ▶ STEER • JUMP OVER DEBRIS • DIVE UNDER BEAMS',4);}
+function endChase(success){mode=success?'waterfall':'failed';sceneEnding=0;$('speech').style.display='none';$('controls').style.display='none';$('prog').style.display='none';$('hud').style.display='none';$('tip').style.display='none';if(success){waterfallStage=-1;sfx('waterfall');}else{finishScreen(false);}}
+function finishScreen(success){mode='end';showScreen('end');$('endTitle').textContent=success?'LEVEL 4 CLEAR!':'GAME OVER';$('endHead').textContent=success?'YOU LOST THE DRONES!':'THE CURRENT GOT YOU';$('endDesc').textContent=success?'Red Man plunged over the waterfall, leaving C.A.S. and its drones stranded above. He has survived... somehow.':'All four health bars are gone. The River Lea doesn’t give second chances — but you can try the chase again.';$('endCoins').textContent='COINS COLLECTED: '+coinCount+'/'+TOTAL_COINS+(success&&coinCount===TOTAL_COINS?'  ★ FUTURE FORTUNE: ALL COINS FOUND!':'');$('endNote').textContent=success?'Level 4 prototype complete — the story continues in Level 5.':'Replay begins at the river; no need to repeat the conversation.';}
+function playerMove(dir){if(mode!=='chase')return;lane=clamp(lane+dir,0,2);moving=dir;accel=.22;sfx('select',.3);}
+function action(kind){if(mode!=='chase')return;if(kind==='jump'&&jump<=0&&dive<=0){jump=.96;sfx('jump',.5);}if(kind==='dive'&&jump<=0&&dive<=0){dive=.83;sfx('dive',.5);}}
+function spawnHazard(){let sec=run,kind,r=Math.random(),target=Math.floor(rand(0,3));if(sec<35)kind=r<.6?'log':'crate';else if(sec<77)kind=r<.42?'log':r<.76?'crate':'pipe';else if(sec<135)kind=r<.35?'log':r<.64?'crate':r<.82?'trolley':'pipe';else kind=r<.23?'log':r<.54?'trolley':r<.78?'pipe':'crate';objects.push({type:kind,lane:target,z:145,hit:false,claimed:false,phase:rand(0,9),id:spawns++});let diff=sec<35?4.5:sec<75?3.5:sec<130?2.8:2.25;nextHazard=run+diff+rand(-.4,.55);}
+function spawnCoin(){if(coinsMade>=TOTAL_COINS)return;let which=(coinsMade*7+1)%3;objects.push({type:'coin',lane:which,z:145,hit:false,claimed:false,phase:coinsMade*.7,id:1000+coinsMade});coinsMade++;nextCoin=run+3.15;}
+function spawnShot(){lasers.push({lane:Math.floor(rand(0,3)),z:115,phase:0,state:'warn',hit:false});nextLaser=run+clamp(10-run/50,5.8,10.2);}
+function damage(){if(invuln>0||mode!=='chase')return;hearts=Math.max(0,hearts-1);invuln=1.65;flash=.3;shake=13;sfx('hit',1.3);sparks(480,405,18,'#fcb8a0');hud();if(hearts<=0)endChase(false);}
+function updateChase(dt){run+=dt;let sec=run;time+=dt;zone=Math.min(4,Math.floor(run/37));let speed=sec<30?23:sec<70?30:sec<125?37:sec<162?43:49;
+ if(run>=TOTAL){endChase(true);return;}
+ if(accel>0)accel-=dt;if(jump>0)jump=Math.max(0,jump-dt);if(dive>0)dive=Math.max(0,dive-dt);if(invuln>0)invuln=Math.max(0,invuln-dt);if(shake>0)shake=Math.max(0,shake-dt*32);if(flash>0)flash=Math.max(0,flash-dt);
+ laneS+=(LANE_X[lane]-laneS)*Math.min(1,dt*10);
+ if(run>=nextHazard)spawnHazard();if(run>=nextCoin&&coinsMade<TOTAL_COINS)spawnCoin();if(run>=nextLaser&&run>35)spawnShot();
+ for(const ob of objects){ob.z-=speed*dt;ob.phase+=dt*4;if(ob.z<10&&ob.z>-10&&!ob.hit){ob.hit=true;let samelane=ob.lane===lane;
+  if(ob.type==='coin'){if(samelane){coinCount++;sfx('coin',.7);sparks(480+LANE_X[lane]*110,414,10,'#ffdc70');hud();}}
+  else if(samelane){let cleared=(ob.type==='log'||ob.type==='crate'||ob.type==='trolley')&&jump>.2||(ob.type==='pipe'&&dive>.15);if(!cleared)damage();}
+ }}objects=objects.filter(o=>o.z>-18);
+ for(const l of lasers){l.z-=speed*1.3*dt;l.phase+=dt;if(l.z<10&&!l.hit){l.hit=true;if(l.lane===lane&&dive<.18&&jump<.22)damage();sfx('laser',.23);}}
+ lasers=lasers.filter(l=>l.z>-15);
+ for(const b of barks){if(sec>=b.at&&!barksDone.has(b.at)){barksDone.add(b.at);if($('speech').style.display==='none'||promptTime<=0){say('RED MAN',b.t,3.1);}}}
+ if(promptTime>0){promptTime-=dt;if(promptTime<=0)dismissSpeech();}
+ if(extraTime>0){extraTime-=dt;if(extraTime<=0)$('tip').style.display='none';}
+ hud();}
+function update(dt){if(mode==='film'){time+=dt;filmTime+=dt;if(filmTime>=filmFinished+1.2)advanceFilm();}else if(mode==='chase')updateChase(dt);else if(mode==='waterfall'){time+=dt;sceneEnding+=dt;let next=sceneEnding<2.2?0:sceneEnding<4.2?1:sceneEnding<6.1?2:sceneEnding<8.2?3:4;if(next!==waterfallStage){waterfallStage=next;const ls=[['RED MAN','Hang on... is that a WATERFALL?!'],['C.A.S. DRONE','Pursuit path obstructed. Unsafe descent.'],['C.A.S.','Target tracking lost. Pursuit suspended.'],['RED MAN','Oh, brilliant! They’re giving up!'],['RED MAN','...I’M NOT! AAAAAAAH!']];say(...ls[next],100);}if(sceneEnding>10.8)finishScreen(true);}else time+=dt;
+ for(let i=particles.length-1;i>=0;i--){let p=particles[i];p.life-=dt;p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=350*dt;if(p.life<=0)particles.splice(i,1);} }
+// Pixel-art rendering helpers
+const R=(x,y,w,h,c)=>{g.fillStyle=c;g.fillRect(Math.round(x),Math.round(y),Math.ceil(w),Math.ceil(h));};
+const C=(x,y,r,c)=>{g.fillStyle=c;g.beginPath();g.arc(x,y,r,0,Math.PI*2);g.fill();};
+const L=(x1,y1,x2,y2,c,w=2)=>{g.strokeStyle=c;g.lineWidth=w;g.beginPath();g.moveTo(x1,y1);g.lineTo(x2,y2);g.stroke();};
+const P=(p,c)=>{g.fillStyle=c;g.beginPath();g.moveTo(p[0][0],p[0][1]);for(let i=1;i<p.length;i++)g.lineTo(p[i][0],p[i][1]);g.closePath();g.fill();};
+function T(t,x,y,size=14,col='#faf4dc',align='left'){g.font='900 '+size+'px system-ui,Arial';g.textAlign=align;g.textBaseline='middle';g.fillStyle='#112130';g.fillText(t,x+1.5,y+2);g.fillStyle=col;g.fillText(t,x,y);}
+function citybg(offset=0,dark=false){let hue=dark?'#1a2933':'#22425c';R(0,0,W,H,'#102137');P([[0,0],[960,0],[960,230],[0,210]],'#1b344f');for(let i=0;i<5;i++){let x=((i*310-time*(i%2?35:20))+1450)%1350-230,y=32+(i*35)%110;P([[x-46,y+17],[x+48,y+17],[x+26,y-6],[x-26,y-6]],'#769aaf');R(x-29,y+2,62,11,'#375d79');R(x-4,y+7,17,6,'#a7e9f7');}
+ for(let i=0;i<28;i++){let x=i*49-(offset*.07%49);let h=72+(i*29%127);R(x,235-h,44,h,hue);R(x+5,235-h-7,34,9,'#49647a');for(let j=0;j<6;j++)if(j*21<h-12)R(x+8+(j%3)*11,224-h+j*21+10,5,9,j%3?'#577c87':'#c4c67d');}
+ // iconic Town Hall tower stays on skyline
+ let cx=700-offset*.02;R(cx-76,114,155,126,'#6e8391');R(cx-32,50,62,183,'#879aa0');R(cx-24,45,46,11,'#afbdaf');R(cx-12,24,22,22,'#9ca9aa');R(cx-8,13,14,12,'#d9c988');C(cx,90,21,'#cdd9c3');C(cx,90,16,'#354358');L(cx,90,cx+11,83,'#f0dd9e',3);L(cx,90,cx,77,'#f0dd9e',3);
+ for(let i=0;i<18;i++){let x=i*57+12;R(x,228+(i*7%12),27,5,dark?'#69727b':'#6b8690');}
+}
+function banksRunDown(){let phase=run/10;const rr=zone>=3;
+ for(let side of [-1,1]){let edge=480+side*195;for(let i=0;i<9;i++){let x=edge+side*(i*76)+(Math.sin(i*.8)*8);let h=100+(i*37%115);R(x-48,215-h,80,h,rr?(i%2?'#525d63':'#59636c'):(i%2?'#426175':'#526b7b'));R(x-48,215-h-9,79,10,rr?'#6b6967':'#7791a0');for(let yy=215-h+19;yy<200;yy+=27){for(let xx=x-36;xx<x+28;xx+=26){R(xx,yy,16,17,rr?'#1e2e3a':'#344f62');if(rr){L(xx-1,yy+1,xx+18,yy+18,'#846e53',4);L(xx+18,yy+1,xx-1,yy+18,'#816f5a',3);}else R(xx+2,yy+1,9,7,'#8de8ec55');}}}}
+}
+function water(){// polygon perspective, river close to the camera
+ P([[417,188],[543,188],[960,540],[0,540]],'#235576');P([[428,200],[532,200],[880,540],[80,540]],'#2c7492');
+ P([[0,236],[417,188],[0,540]],zone>=3?'#666a63':'#70858c');P([[543,188],[960,234],[960,540]],zone>=3?'#68706a':'#668b93');
+ for(let s=0;s<26;s++){let y=205+((s*27+(time*50*(s%3+1)))%360),d=(y-196)/344,x=480+Math.sin(s*3.17+time*1.4)*d*255;L(x-20*d,y,x+(20+45*d),y-3,'#92e6e55a',1+4*d);L(x+83*d,y+12*d,x+(105*d),y+9*d,'#ceeefa5d',1+3*d);}
+ for(let k=0;k<9;k++){let y=222+((k*51+time*55)%350),sc=(y-188)/352,x=480+(k%2?-1:1)*(80+sc*360);R(x,y,8+sc*50,2+sc*8,zone>=3?'#879187':'#91a5a3');}
+ // central water lane markings faint
+ for(let i=0;i<2;i++){let l=i===0?-1:1;for(let j=0;j<12;j++){let y=210+(j*36+time*65)%350,sc=(y-188)/350;let x=480+l*(24+sc*140);R(x,y,2+sc*4,1+sc*2,'#a4ece754');}}
+}
+function perspective(z,laneIdx){let d=clamp(1-z/160,0,1),p=d*d;return{x:480+LANE_X[laneIdx]*(26+168*p),y:204+264*p,scale:.19+1.35*p,p};}
+function drawDrone(x,y,s=1,alert=false){g.save();g.translate(x,y);g.scale(s,s);R(-41,-6,82,19,'#273345');R(-22,-19,45,37,'#5f7c8b');R(-12,-12,25,24,'#b0c1bf');R(-12,2,24,9,alert?'#f55565':'#80f8f2');R(-65,-10,30,12,'#839eaa');R(35,-10,30,12,'#839eaa');L(-53,-19,-53,-2,'#acdae0',3);L(53,-19,53,-2,'#acdae0',3);R(-71,-19,36,4,'#c0e5e4');R(35,-19,36,4,'#c0e5e4');C(0,10,6,alert?'#f94158':'#9ee6cf');g.restore();}
+function drawHeroBack(x,y,s=1,swim=true,jumping=0,diving=0){g.save();g.translate(x,y);g.scale(s,s);if(invuln>0&&Math.floor(time*15)%2===0&&mode==='chase'){g.restore();return;}let wob=Math.sin(time*11)*3;
+ // waves behind shoulders
+ if(swim){C(-22,21,15,'#6ab8ce77');C(20,22,17,'#a2e8ec99');}
+ // legs below water, red suit black limbs, no chest emblem
+ R(-14,12,11,24,'#a52440');R(3,12,11,24,'#a52440');R(-16,-24,32,42,'#b92b45');R(-12,-19,24,29,'#df344e');R(-15,9,30,9,'#202437');R(-6,9,12,9,'#c8cfd0');R(-3,10,6,7,'#f3f3e7');
+ let armL=swim?Math.sin(time*10)*12:0,armR=swim?Math.sin(time*10+Math.PI)*12:0;
+ L(-13,-17,-29,-6+armL,'#171d30',11);L(-29,-6+armL,-37,4+armL,'#c82e49',11);
+ L(13,-17,29,-6+armR,'#171d30',11);L(29,-6+armR,37,4+armR,'#c82e49',11);
+ R(-19,-64,38,42,'#af263d');R(-15,-62,30,32,'#d8304b');R(-18,-51,7,14,'#252837');R(11,-51,7,14,'#252837');R(-13,-35,26,7,'#151c2f');
+ // small silver accents on mask seen from rear, not huge eyes
+ R(-18,-29,36,5,'#243246');R(-12,-24,24,3,'#121b2d');
+ if(swim){L(-37,4+armL,-45,16+armL,'#da344e',7);L(37,4+armR,45,16+armR,'#da344e',7);}if(diving>0)R(-23,-54,46,21,'#5fb3ca99');g.restore();}
+function drawCaia(x,y,s=1){g.save();g.translate(x,y);g.scale(s,s);R(-17,-45,34,42,'#60758d');R(-19,-35,38,27,'#7b8694');R(-11,-6,9,20,'#2b3648');R(4,-6,9,20,'#2b3648');R(-22,-74,45,34,'#d5b36e');R(-17,-71,35,27,'#efd28e');R(-16,-61,32,11,'#303f57');R(-16,-53,32,8,'#92edf9');R(-19,-76,7,45,'#b79656');R(16,-76,7,43,'#c79d58');R(-21,-33,11,24,'#7c8997');R(12,-33,11,24,'#7c8997');g.restore();}
+function drawFrontHero(x,y,s=1,pose=0){g.save();g.translate(x,y);g.scale(s,s);R(-17,-48,34,45,'#bb2e47');R(-12,-41,25,30,'#d83350');R(-17,-8,34,9,'#1a2638');R(-6,-8,13,9,'#cbd2ce');R(-12,0,11,25,'#b3273e');R(3,0,11,25,'#b3273e');R(-20,-82,40,38,'#bd2944');R(-17,-79,34,30,'#dd3652');P([[-14,-68],[-3,-64],[-5,-55],[-14,-60]],'#f3f0e4');P([[14,-68],[3,-64],[5,-55],[14,-60]],'#f3f0e4');R(-22,-48,9,34,'#a3243d');R(13,-48,9,34,'#a3243d');if(pose>0)L(19,-38,30,-66,'#a92744',10);g.restore();}
+function drawGoggles(x,y,s=1){g.save();g.translate(x,y);g.scale(s,s);R(-31,-11,62,24,'#1e304a');R(-29,-9,58,20,'#79c8d7');R(-22,-7,19,16,'#abdbe2');R(2,-7,20,16,'#b1c8cc');R(-19,11,13,7,'#ef85b6');R(-2,11,9,7,'#83bce0');R(13,11,9,7,'#eac67c');R(-32,-7,5,14,'#24263b');R(28,-7,6,14,'#24263b');g.restore();}
+function drawFilm(){citybg(time*13,stage===3);R(0,318,960,222,'#2e495a');P([[0,420],[960,407],[960,540],[0,540]],'#5c6d6a');P([[0,439],[960,431],[960,540],[0,540]],'#265a71');for(let i=0;i<25;i++){let xx=(i*69+time*80)%1030-40;L(xx,473+(i%3)*15,xx+40,468+(i%3)*15,'#7ed8e46b',2)}
+ // quay wall with steps and crumbling rails
+ R(130,301,720,25,'#7b817c');R(126,329,730,80,'#69736f');for(let i=0;i<6;i++){R(134+i*112,335,4,52,'#45515b');R(170+i*112,311,4,11,'#d3c8a9');}
+ for(let i=0;i<18;i++){let cx=i*55,Ru=4+Math.sin(time*2+i)*2;L(cx,426+Ru,cx+22,426+Ru,'#8adae6aa',2);}
+ let caiaX=stage>=3?clamp(565+filmTime*110,565,990):575;
+ let caiaY=stage===0?310+Math.sin(time*3)*3:326;
+ let heroX=stage===3?410+Math.min(230,filmTime*43):400;
+ drawCaia(caiaX,caiaY,2.15);
+ drawFrontHero(heroX,370+(stage===3?Math.sin(time*8)*6:0),2.0,stage===1?1:0);
+ if(stage===1){drawGoggles(490,295+Math.sin(time*4)*5,1.25);C(507,311,5+Math.sin(time*4)*2,'#f083bd99');T('PINK VIAL: REMEMBER',480,204,16,'#ffdcb9','center');}
+ if(stage>=2){drawGoggles(heroX,224,1.2);P([[172,91],[789,91],[781,141],[180,141]],'#851e37bd');T('C.A.S. // UNAUTHORISED SCREEN',480,118,22,'#ffb9ad','center');drawDrone(780+Math.sin(time*3)*12,229,1.15,true);drawDrone(854+Math.sin(time*2)*9,275,.85,true);if(Math.floor(time*4)%2)R(230,146,500,3,'#ff7d8888');}
+ if(stage===3){drawDrone(850,211,1.2,true);let splashX=heroX+70;if(filmI>cutLines.length-4){C(splashX,455,55,'#b4edf4a4');C(splashX,455,28,'#5dabc1');}}
+ T(['HAT GARDENS · RIVER LEA','THE TRADE · PINK: REMEMBER','C.A.S. DETECTS AN UNREGISTERED SCREEN','INTO THE LEA!'][stage],480,59,23,'#f5e4bd','center');
+ g.lineWidth=13;g.strokeStyle='#111824';g.strokeRect(11,11,938,518);g.lineWidth=5;g.strokeStyle='#f4e4c2';g.strokeRect(18,18,924,504);
+}
+function drawOb(ob){let pr=perspective(ob.z,ob.lane);if(pr.p<=.012)return;let {x,y,scale:sc}=pr;g.save();g.translate(x,y);g.scale(sc,sc);let bob=Math.sin(ob.phase)*3;
+ if(ob.type==='coin'){C(0,-38+bob,15,'#6d4621');C(0,-39+bob,12,'#ffce56');C(0,-39+bob,7,'#fff0a9');T('★',0,-40+bob,18,'#a86f1c','center');}
+ if(ob.type==='log'){g.rotate(.08);R(-33,-18,66,19,'#432a28');R(-31,-22,62,9,'#9b7452');R(-21,-16,42,6,'#c3a377');C(-32,-12,11,'#765b3b');}
+ if(ob.type==='crate'){R(-30,-44,60,46,'#81684c');R(-24,-40,48,36,'#bb9365');L(-25,-36,25,-3,'#584531',6);L(-25,-3,25,-36,'#715238',6);R(-10,-13,21,7,'#e8c47e');}
+ if(ob.type==='trolley'){R(-32,-38,62,30,'#8d9fa2');for(let i=0;i<5;i++)L(-28+i*13,-35,-28+i*13,-10,'#3b515a',3);L(-32,-38,39,-52,'#bbbdba',5);C(-20,2,8,'#24343e');C(22,2,8,'#24343e');}
+ if(ob.type==='pipe'){R(-38,-88,76,19,'#8b8e8d');R(-37,-90,73,5,'#b9c1ba');R(-36,-75,9,41,'#5b6367');R(27,-75,9,41,'#5b6367');T('DIVE',0,-100,15,'#ffe0a4','center');}
+ g.restore();}
+function drawLaser(l){let p=perspective(l.z,l.lane);if(p.p<.01)return;g.save();g.globalAlpha=l.hit?.25:1;P([[p.x-14*p.scale,p.y],[p.x+14*p.scale,p.y],[p.x+30*p.scale,p.y+9*p.scale],[p.x-30*p.scale,p.y+9*p.scale]],'#e93562a3');if(l.z<65){L(p.x,p.y-57*p.scale,p.x,p.y+4*p.scale,'#ff738d',4*p.scale);C(p.x,p.y-18*p.scale,5*p.scale,'#fff3dd');}g.restore();}
+function drawChase(){g.save();if(shake>0)g.translate(rand(-shake,shake),rand(-shake/2,shake/2));citybg(run*22,zone>=3);banksRunDown();water();
+ // old canal structures and bridge silhouettes to reinforce forward movement
+ if(zone>1){let bridge=((run*24)%1080)-300;P([[0,140+bridge*.16],[960,140+bridge*.16],[960,160+bridge*.16],[0,165+bridge*.16]],'#455261aa');}
+ for(const l of lasers)drawLaser(l);
+ let ordered=objects.filter(o=>o.z<160&&o.z>=-10).sort((a,b)=>b.z-a.z);for(const ob of ordered)drawOb(ob);
+ for(let i=0;i<3;i++){let x=[177,787,870][i]+Math.sin(time*(1.2+i))*(6+i*5);drawDrone(x,105+i*36+(Math.sin(time*2+i)*12),[.67,.95,.7][i],true);}
+ if(run>38){let last=objects.find(o=>o.type==='laser');if(run%9<.4)drawDrone(480,101,1.12,true);}
+ let px=480+laneS*174+(moving*accel*25),py=433+Math.sin(time*9)*4;let j=jump>0?Math.sin((1-jump/.96)*Math.PI)*100:0;let d=dive>0?22:0;
+ C(px,465,41-j*.14,'#173445a5');drawHeroBack(px,py-j+d,2.0-j*.004,true,j,dive);
+ if(jump>0){T('JUMP',px,303-j*.25,12,'#d7f6f3','center');}
+ if(flash>0)R(0,0,W,H,'#d84c5633');
+ for(const p of particles){R(p.x,p.y,p.sz,p.sz,p.col);}
+ if(run<12)T('STEER LEFT / RIGHT · JUMP · DIVE',480,144,24,'#f6e1a7','center');
+ if(run>162){let amount=clamp((run-162)/18,0,1);R(0,195,960,Math.round(amount*115),'#a3d3d44f');if(amount>.7)T('WATERFALL AHEAD!',480,230,36,'#fff1c3','center');}
+ g.restore();}
+function drawWaterfall(){let k=clamp(sceneEnding/10.8,0,1);citybg(run*24,true);R(0,190,960,350,'#304d60');P([[80,190],[880,190],[960,540],[0,540]],'#417b92');for(let i=0;i<65;i++){let x=i*16,y=210+((i*38+time*175)%340);L(x,y,x+Math.sin(i)*5,y+44,'#d3f9efa1',2+Math.sin(i));}
+ R(0,220,960,40,'#a8d4d2');P([[0,260],[960,260],[960,540],[0,540]],'#426f85');for(let i=0;i<35;i++){let x=i*31+Math.sin(time*6+i)*15,y=270+Math.sin(time*5+i*2)*18;L(x,y,x+5,y+185,'#d8ffffaa',5);}
+ for(let i=0;i<3;i++)drawDrone(230+i*240,120+Math.sin(time*3+i)*10,.7,true);
+ let heroY=300+(Math.pow(k,2))*300;drawHeroBack(480,heroY,2.2,true);
+ T(k<.52?'THE DRONES CAN’T FOLLOW…':'…BUT RED MAN CAN’T STOP!',480,110,29,'#fff0cc','center');
+ if(k>.82){R(0,0,960,540,`rgba(179,219,224,${(k-.82)*2.2})`);}
+}
+function render(){g.clearRect(0,0,W,H);if(mode==='film')drawFilm();else if(mode==='chase')drawChase();else if(mode==='waterfall')drawWaterfall();else {citybg(time*9,mode==='end');banksRunDown();water();drawHeroBack(476,433,2,true);drawDrone(765,123,.95,true);}
+}
+function loop(ts){let dt=Math.min(.04,(ts-last)/1000||.016);last=ts;if(mode!=='paused')update(dt);render();requestAnimationFrame(loop);}requestAnimationFrame(loop);
+function press(kind){audioUnlock();if(kind==='left')playerMove(-1);else if(kind==='right')playerMove(1);else action(kind);}
+for(const b of document.querySelectorAll('[data-action]')){b.addEventListener('pointerdown',ev=>{ev.preventDefault();press(b.dataset.action);b.classList.add('active');try{b.setPointerCapture(ev.pointerId);}catch{}});for(const event of ['pointerup','pointercancel','lostpointercapture'])b.addEventListener(event,()=>b.classList.remove('active'));}
+let x0=0,y0=0;canvas.addEventListener('pointerdown',e=>{if(mode!=='chase')return;x0=e.clientX;y0=e.clientY;e.preventDefault();});canvas.addEventListener('pointerup',e=>{if(mode!=='chase')return;let dx=e.clientX-x0,dy=e.clientY-y0;if(Math.abs(dx)>Math.abs(dy)&&Math.abs(dx)>35)playerMove(dx>0?1:-1);else if(Math.abs(dy)>30)action(dy<0?'jump':'dive');e.preventDefault();});
+window.addEventListener('keydown',e=>{const k=e.key.toLowerCase();if(['arrowleft','arrowright','arrowup','arrowdown',' ','a','d','s','w'].includes(k))e.preventDefault();if(e.repeat)return;if(mode==='film'&&(k==='enter'||k===' '))advanceFilm();else if(mode==='chase'){if(k==='arrowleft'||k==='a')press('left');if(k==='arrowright'||k==='d')press('right');if(k==='arrowup'||k==='w'||k===' ')press('jump');if(k==='arrowdown'||k==='s')press('dive');}});
+$('start').addEventListener('click',()=>startFilm());$('next').addEventListener('click',advanceFilm);$('skip').addEventListener('click',beginChase);$('retry').addEventListener('click',()=>{audioUnlock();beginChase();});$('audio').addEventListener('click',()=>{audioOn=!audioOn;$('audio').textContent=audioOn?'♫ ON':'♫ OFF';if(!audioOn&&waterLoop)waterLoop.gain.value=0;else if(audioOn){audioUnlock();if(waterLoop)waterLoop.gain.value=.035;}});
+$('pause').addEventListener('click',()=>{if(mode==='chase'){mode='paused';$('pause').textContent='▶ PLAY';$('controls').style.opacity='.25';}else if(mode==='paused'){mode='chase';$('pause').textContent='Ⅱ';$('controls').style.opacity='1';}});
+document.addEventListener('touchstart',e=>{if(e.touches.length>1)e.preventDefault();},{passive:false});document.addEventListener('touchmove',e=>{e.preventDefault();},{passive:false});let lastTouch=0;document.addEventListener('touchend',e=>{let now=Date.now();if(now-lastTouch<280)e.preventDefault();lastTouch=now;},{passive:false});document.addEventListener('contextmenu',e=>e.preventDefault());window.addEventListener('blur',()=>document.querySelectorAll('.ctrl.active').forEach(b=>b.classList.remove('active')));
+// Public debug hooks for automated in-browser playthroughs.
+window.__L4={status:()=>({mode,run,hearts,lane,coins:coinCount,totalCoins:TOTAL_COINS,objects:objects.length,lasers:lasers.length,sceneLine:filmI,totalLines:cutLines.length,spawnedCoins:coinsMade}),startFilm,skipIntro:beginChase,move:playerMove,action,damage,complete:()=>endChase(true),setTime:val=>{run=clamp(val,0,TOTAL);hud();},setHearts:v=>{hearts=v;hud();}};
+})();
+</script></body></html>
