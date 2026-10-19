@@ -1,4 +1,3 @@
-// All on Red! Level 4 early playable prototype v0.1.
-// Unregister stale service workers so GitHub Pages updates are immediate.
-self.addEventListener('install',event=>self.skipWaiting());
-self.addEventListener('activate',event=>event.waitUntil(self.registration.unregister()));
+// All on Red! Level 4 v0.2 — disable stale offline caching.
+self.addEventListener("install",e=>self.skipWaiting());
+self.addEventListener("activate",e=>e.waitUntil(self.registration.unregister()));
